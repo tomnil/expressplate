@@ -8,7 +8,7 @@ let app: Express.Application | undefined = undefined;
 
 export function InitializeExpress(): Express.Application {
 
-    const PORT = parseInt(process.env.PORT) ?? 3001;
+    const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3001;
 
     // *************************************************
     // Setup Express
@@ -19,15 +19,6 @@ export function InitializeExpress(): Express.Application {
     app.use(cors({ exposedHeaders: 'Authorization' }));
     app.use(Express.urlencoded({ extended: true }));
     app.use(Express.json());
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    app.use(function (err: Error & { status: number, message: string }, req: Express.Request, res: Express.Response, next: Express.NextFunction) {
-        console.error(err.status);
-        console.error(err.message);
-        console.error(err.stack);
-        res.status(500).json({ Error: "Internal error" });
-        res.end();
-    });
 
     // *************************************************
     // Decode jwt, if any
@@ -121,6 +112,20 @@ export function InitializeExpress(): Express.Application {
 
     app.use(function (_req: Express.Request, res: Express.Response) {
         res.status(404).json({ Error: "This route is not found" });
+    });
+
+
+    // *************************************************
+    // Error handler
+    // *************************************************
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    app.use(function (err: Error & { status: number, message: string }, req: Express.Request, res: Express.Response, next: Express.NextFunction) {
+        console.error(err.status);
+        console.error(err.message);
+        console.error(err.stack);
+        res.status(500).json({ Error: "Internal error" });
+        res.end();
     });
 
     // *************************************************
